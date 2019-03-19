@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 const init = (sequelize) => {
-  sequelize.define(
+  const Department = sequelize.define(
     'Department',
     {
       id: {
@@ -25,6 +25,8 @@ const init = (sequelize) => {
       timestamps: false,
     },
   );
+
+  Department.authScope = async () => ({ where: {} });
 };
 
 module.exports = init;

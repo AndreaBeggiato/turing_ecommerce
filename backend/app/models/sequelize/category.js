@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 const init = (sequelize) => {
-  sequelize.define(
+  const Category = sequelize.define(
     'Category',
     {
       id: {
@@ -30,6 +30,8 @@ const init = (sequelize) => {
       timestamps: false,
     },
   );
+
+  Category.authScope = async () => ({ where: { } });
 };
 
 module.exports = init;

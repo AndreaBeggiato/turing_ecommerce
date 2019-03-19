@@ -15,7 +15,7 @@ const resolver = {
   ProductConnection: {
     edges: source => source.edges,
     pageInfo: source => source.pageInfo,
-    total: source => source.fullCount,
+    total: source => source.fullCount || source.edges.length,
   },
   ProductEdge: {
     cursor: source => source.cursor,

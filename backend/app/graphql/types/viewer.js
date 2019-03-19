@@ -42,11 +42,12 @@ const resolver = {
         sequelize,
         dataloaders,
         guard,
+        currentAuth,
         errorCodes,
       } = context;
       const Department = sequelize.model('Department');
       if (await guard.allows('department.list')) {
-        const departments = await Department.findAll({ attributes: ['id'] });
+        const departments = await Department.findAll(await Department.authScope(currentAuth));
         const ids = departments.map(r => r.id);
         ids.forEach(id => dataloaders.default('Department').prime(id, departments.find(r => r.id === id)));
         return dataloaders.default('Department').loadMany(ids);
@@ -63,14 +64,15 @@ const resolver = {
       } = context;
       const Product = sequelize.model('Product');
       if (await guard.allows('product.list')) {
+        const whereClause = {
+          ...(await Product.authScope(currentAuth)).where,
+          ...(await applyProductFilter(args)).where,
+        };
         const { resolveConnection } = createConnectionResolver({
           target: Product,
           before: async findOperation => ({
             ...findOperation,
-            where: {
-              ...(await Product.authScope(currentAuth)).where,
-              ...(await applyProductFilter(args)).where,
-            },
+            where: whereClause,
           }),
           after: (result) => {
             const ids = result.edges.map(r => r.id);

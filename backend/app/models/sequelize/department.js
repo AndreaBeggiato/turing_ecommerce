@@ -10,8 +10,14 @@ const init = (sequelize) => {
         autoIncrement: true,
         field: 'department_id',
       },
-      name: Sequelize.STRING,
-      description: Sequelize.STRING,
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      description: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
     },
     {
       tableName: 'department',

@@ -8,7 +8,7 @@ const expressPromise = require('./express');
 const sequelizePromise = require('./sequelize');
 const loggerPromise = require('./logger');
 const dataloaders = require('../app/dataloaders');
-// const { decodeUser } = require('../app/utils/authentication');
+const { decodeUser } = require('../app/utils/authentication');
 
 const rootPath = config.get('rootPath');
 
@@ -71,13 +71,13 @@ async function init() {
       if (req.headers.authorization && req.headers.authorization.toLowerCase().startsWith('bearer')) {
         token = req.headers.authorization.slice(7);
       }
-      const user = null;
+      const auth = await decodeUser(logger, token);
 
-      const guard = Guard.setDefaultUser(user);
+      const guard = Guard.setDefaultUser(auth);
 
       return {
         dataloaders: dataloaders(sequelize),
-        currentUser: user,
+        currentAuth: auth,
         sequelize,
         guard,
         logger,

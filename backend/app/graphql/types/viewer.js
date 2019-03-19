@@ -18,9 +18,19 @@ const resolver = {
       return dataloaders.default('Department').loadMany(ids);
     },
     products: async (source, args, context, info) => {
-      const { sequelize, dataloaders } = context;
+      const { sequelize, dataloaders, currentAuth } = context;
+      const Product = sequelize.model('Product');
       const { resolveConnection } = createConnectionResolver({
-        target: sequelize.model('Product'),
+        target: Product,
+        before: async (findOperation) => {
+          const a =  {
+            ...findOperation,
+            where: {
+              ...(await Product.authScope(currentAuth)).where,
+            },
+          };
+          return a;
+        },
         after: (result) => {
           const ids = result.edges.map(r => r.id);
           ids.forEach(id => dataloaders.default('Product').prime(id, result.edges.find(r => r.id === id)));

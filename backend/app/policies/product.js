@@ -1,5 +1,5 @@
 module.exports = {
-  name: 'category',
+  name: 'product',
   methods: {
     list: () => true,
     show: (auth, product) => {

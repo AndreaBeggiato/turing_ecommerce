@@ -29,12 +29,12 @@ const init = (sequelize) => {
       },
       primaryImage: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         field: 'image',
       },
       secondaryImage: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         field: 'image_2',
       },
       name: {

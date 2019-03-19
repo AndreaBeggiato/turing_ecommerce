@@ -18,6 +18,11 @@ const init = (sequelize) => {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      departmentId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        field: 'department_id',
+      },
     },
     {
       tableName: 'category',

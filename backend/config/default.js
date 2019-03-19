@@ -3,6 +3,7 @@ const path = require('path');
 const config = {
   rootPath: path.join(__dirname, '..'),
   port: process.env.PORT,
+  assetBaseUrl: 'https://fakecdn.base.url',
   sequelize: {
     database: process.env.MYSQL_DATABASE,
     username: process.env.MYSQL_USERNAME,

@@ -23,34 +23,64 @@ const resolver = {
         }
         throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
       }
+      if (type === 'Product') {
+        if (await guard.allows('product.show')) {
+          return dataloaders.default('Product').load(realId);
+        }
+        throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
+      }
+      if (type === 'Category') {
+        if (await guard.allows('category.show')) {
+          return dataloaders.default('Category').load(realId);
+        }
+        throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
+      }
       throw new ApolloError(errorCodes.generic.INVALID_TYPE, 'GENERIC', { type });
     },
     departments: async (source, args, context) => {
-      const { sequelize, dataloaders } = context;
-      const departments = await sequelize.model('Department').findAll();
-      const ids = departments.map(r => r.id);
-      ids.forEach(id => dataloaders.default('Department').prime(id, departments.find(r => r.id === id)));
-      return dataloaders.default('Department').loadMany(ids);
+      const {
+        sequelize,
+        dataloaders,
+        guard,
+        errorCodes,
+      } = context;
+      const Department = sequelize.model('Department');
+      if (await guard.allows('department.list')) {
+        const departments = await Department.findAll({ attributes: ['id'] });
+        const ids = departments.map(r => r.id);
+        ids.forEach(id => dataloaders.default('Department').prime(id, departments.find(r => r.id === id)));
+        return dataloaders.default('Department').loadMany(ids);
+      }
+      throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
     },
     products: async (source, args, context, info) => {
-      const { sequelize, dataloaders, currentAuth } = context;
+      const {
+        sequelize,
+        dataloaders,
+        currentAuth,
+        guard,
+        errorCodes,
+      } = context;
       const Product = sequelize.model('Product');
-      const { resolveConnection } = createConnectionResolver({
-        target: Product,
-        before: async findOperation => ({
-          ...findOperation,
-          where: {
-            ...(await Product.authScope(currentAuth)).where,
-            ...(await applyProductFilter(args)).where,
+      if (await guard.allows('product.list')) {
+        const { resolveConnection } = createConnectionResolver({
+          target: Product,
+          before: async findOperation => ({
+            ...findOperation,
+            where: {
+              ...(await Product.authScope(currentAuth)).where,
+              ...(await applyProductFilter(args)).where,
+            },
+          }),
+          after: (result) => {
+            const ids = result.edges.map(r => r.id);
+            ids.forEach(id => dataloaders.default('Product').prime(id, result.edges.find(r => r.id === id)));
+            return result;
           },
-        }),
-        after: (result) => {
-          const ids = result.edges.map(r => r.id);
-          ids.forEach(id => dataloaders.default('Product').prime(id, result.edges.find(r => r.id === id)));
-          return result;
-        },
-      });
-      return resolveConnection(source, args, context, info);
+        });
+        return resolveConnection(source, args, context, info);
+      }
+      throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
     },
   },
 };

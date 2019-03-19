@@ -1,7 +1,6 @@
 const Sequelize = require('sequelize');
-const { Op } = Sequelize;
 
-const delay = () => new Promise(fulfill => setTimeout(() => fulfill(), 1500));
+const { Op } = Sequelize;
 
 const init = (sequelize) => {
   const Product = sequelize.define(

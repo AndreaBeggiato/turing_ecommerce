@@ -1,10 +1,10 @@
 const { createConnectionResolver } = require('graphql-sequelize');
-const { Op } = require('sequelize');
+const { apply: applyProductFilter } = require('../filters/product');
 
 const typeDefinition = `
   type Viewer {
     departments: [Department!]!
-    products(first: Int, last: Int, before: String, after: String): ProductConnection!
+    products(first: Int, last: Int, before: String, after: String, filter: ProductFilter): ProductConnection!
   }
 `;
 
@@ -22,15 +22,13 @@ const resolver = {
       const Product = sequelize.model('Product');
       const { resolveConnection } = createConnectionResolver({
         target: Product,
-        before: async (findOperation) => {
-          const a =  {
-            ...findOperation,
-            where: {
-              ...(await Product.authScope(currentAuth)).where,
-            },
-          };
-          return a;
-        },
+        before: async findOperation => ({
+          ...findOperation,
+          where: {
+            ...(await Product.authScope(currentAuth)).where,
+            ...(await applyProductFilter(args)).where,
+          },
+        }),
         after: (result) => {
           const ids = result.edges.map(r => r.id);
           ids.forEach(id => dataloaders.default('Product').prime(id, result.edges.find(r => r.id === id)));

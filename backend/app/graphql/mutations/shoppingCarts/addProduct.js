@@ -29,7 +29,7 @@ const typeDefinition = `
 
 const validate = async (input, context) => {
   const {
-    dataloaders,
+    sequelize,
   } = context;
   const {
     cartCode,
@@ -46,27 +46,29 @@ const validate = async (input, context) => {
     throw new UserInputError(errors.QUANTITY_TOO_LOW);
   }
 
-  const { id: realProductId } = fromGlobalId(productId);
-  const product = dataloaders.default('Product').load(realProductId);
+  const Product = sequelize.model('Product');
+
+  const realProductId = parseInt(fromGlobalId(productId).id, 10);
+  const product = await Product.findByPk(realProductId);
 
   if (!product) {
     throw new UserInputError(errors.PRODUCT_NOT_FOUND);
   }
 
   if (attributeValueIds.length) {
-    const realAttributeValueIds = attributeValueIds.map(avi => fromGlobalId(avi).id);
+    const realAttributeValueIds = attributeValueIds.map(avi => parseInt(fromGlobalId(avi).id, 10));
 
     const attributeValues = await product.getAttributeValues({
       where: { id: { [Op.in]: realAttributeValueIds } },
     });
 
-    if (attributeValues.length !== realAttributeValueIds) {
+    if (attributeValues.length !== realAttributeValueIds.length) {
       throw new UserInputError(errors.ATTRIBUTE_VALUES_NOT_IN_PRODUCT);
     }
 
-    const uniqueAttributeIds = new Set(...attributeValues.map(av => av.attributeId));
+    const uniqueAttributeIds = [...new Set(attributeValues.map(av => av.attributeId))];
 
-    if (uniqueAttributeIds.length !== uniqueAttributeIds) {
+    if (uniqueAttributeIds.length !== realAttributeValueIds.length) {
       throw new UserInputError(errors.MULTIPLE_ATTRIBUTE_VALUES_FOR_SAME_ATTRIBUTE);
     }
   }
@@ -91,10 +93,10 @@ const mutate = async (source, { input }, context) => {
 
     const ShoppingCartRow = sequelize.model('ShoppingCartRow');
 
-    const { id: realProductId } = fromGlobalId(productId);
-    const realAttributeValueIds = attributeValueIds.map(avi => fromGlobalId(avi).id);
+    const realProductId = parseInt(fromGlobalId(productId).id, 10);
+    const realAttributeValueIds = attributeValueIds.map(avi => parseInt(fromGlobalId(avi).id, 10));
 
-    let shoppingCartRow = ShoppingCartRow.findOne({
+    let shoppingCartRow = await ShoppingCartRow.findOne({
       where: {
         cartId: cartCode,
         productId: realProductId,

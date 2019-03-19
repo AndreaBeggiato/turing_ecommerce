@@ -13,7 +13,6 @@ module.exports = async (factory, sequelize) => {
       price: 123.45,
       thumbnail: 'thumbnail.jpg',
       categoryId: factory.assoc('Category', 'id'),
-      // attributeValues: factory.assocMany('AttributeValue', 2),
     },
   );
 };

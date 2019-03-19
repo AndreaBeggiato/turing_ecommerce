@@ -4,6 +4,7 @@ const init = (sequelize) => {
   const Category = sequelize.model('Category');
   const Attribute = sequelize.model('Attribute');
   const AttributeValue = sequelize.model('AttributeValue');
+  const ShoppingCartRow = sequelize.model('ShoppingCartRow');
 
   const ProductCategory = sequelize.model('ProductCategory');
   const ProductAttributeValue = sequelize.model('ProductAttributeValue');
@@ -19,6 +20,8 @@ const init = (sequelize) => {
 
   Product.attributeValuesAssociation = Product.belongsToMany(AttributeValue, { through: ProductAttributeValue, foreignKey: 'product_id' });
   AttributeValue.productsAssociation = AttributeValue.belongsToMany(Product, { through: ProductAttributeValue, foreignKey: 'attribute_value_id' });
+
+  ShoppingCartRow.productAssociation = ShoppingCartRow.belongsTo(Product, { foreignKey: 'product_id', targetKey: 'id' });
 };
 
 module.exports = init;

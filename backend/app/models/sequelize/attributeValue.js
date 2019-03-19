@@ -15,11 +15,6 @@ const init = (sequelize) => {
         allowNull: false,
         field: 'attribute_id',
       },
-      // attributeId: {
-      //   type: Sequelize.INTEGER,
-      //   allowNull: false,
-      //   field: 'attribute_id',
-      // },
       value: {
         type: Sequelize.STRING,
         allowNull: false,

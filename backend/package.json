@@ -23,6 +23,7 @@
     "graphql-sequelize": "^9.3.4",
     "mysql2": "^1.6.5",
     "pino": "^5.11.1",
+    "randomstring": "^1.1.5",
     "sequelize": "^5.1.0"
   },
   "devDependencies": {

@@ -12,6 +12,8 @@ module.exports = async (factory, sequelize) => {
       name: factory.seq('Product.name', n => `Product name ${n}`),
       price: 123.45,
       thumbnail: 'thumbnail.jpg',
+      categoryId: factory.assoc('Category', 'id'),
+      // attributeValues: factory.assocMany('AttributeValue', 2),
     },
   );
 };

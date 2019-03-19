@@ -35,6 +35,18 @@ const resolver = {
         }
         throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
       }
+      if (type === 'Attribute') {
+        if (await guard.allows('attribute.show')) {
+          return dataloaders.default('Attribute').load(realId);
+        }
+        throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
+      }
+      if (type === 'AttributeValue') {
+        if (await guard.allows('attributeValue.show')) {
+          return dataloaders.default('AttributeValue').load(realId);
+        }
+        throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
+      }
       throw new ApolloError(errorCodes.generic.INVALID_TYPE, 'GENERIC', { type });
     },
     departments: async (source, args, context) => {

@@ -8,7 +8,7 @@ const mapDataToHash = data => (
 );
 
 const loader = async (model, ids) => {
-  const data = await model.findAll({ id: { [Op.in]: ids } });
+  const data = await model.findAll({ where: { id: { [Op.in]: ids } } });
   const hash = mapDataToHash(data);
   return ids.map((id) => {
     if (hash[id.toString()]) {

@@ -17,6 +17,12 @@ const resolver = {
       if (obj instanceof sequelize.model('Category')) {
         return 'Category';
       }
+      if (obj instanceof sequelize.model('Attribute')) {
+        return 'Attribute';
+      }
+      if (obj instanceof sequelize.model('AttributeValue')) {
+        return 'AttributeValue';
+      }
       return null;
     },
   },

@@ -1,8 +1,11 @@
 const { createConnectionResolver } = require('graphql-sequelize');
+const { fromGlobalId } = require('graphql-relay');
+const { AuthenticationError, ApolloError } = require('apollo-server-express');
 const { apply: applyProductFilter } = require('../filters/product');
 
 const typeDefinition = `
   type Viewer {
+    node(id: ID!): Node!
     departments: [Department!]!
     products(first: Int, last: Int, before: String, after: String, filter: ProductFilter): ProductConnection!
   }
@@ -10,6 +13,18 @@ const typeDefinition = `
 
 const resolver = {
   Viewer: {
+    node: async (source, args, context) => {
+      const { id } = args;
+      const { dataloaders, guard, errorCodes } = context;
+      const { type, id: realId } = fromGlobalId(id);
+      if (type === 'Department') {
+        if (await guard.allows('department.show')) {
+          return dataloaders.default('Department').load(realId);
+        }
+        throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
+      }
+      throw new ApolloError(errorCodes.generic.INVALID_TYPE, 'GENERIC', { type });
+    },
     departments: async (source, args, context) => {
       const { sequelize, dataloaders } = context;
       const departments = await sequelize.model('Department').findAll();

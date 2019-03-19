@@ -5,7 +5,7 @@ module.exports = async (factory, sequelize) => {
     Department,
     {
       name: factory.seq('Department.name', n => `Department name ${n}`),
-      description: factory.seq('Department.name', n => `Department description ${n}`),
+      description: factory.seq('Department.description', n => `Department description ${n}`),
     },
   );
 };

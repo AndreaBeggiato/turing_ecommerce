@@ -48,7 +48,7 @@ const init = (sequelize) => {
       },
       thumbnail: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
     },
     {

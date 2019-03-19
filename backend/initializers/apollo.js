@@ -9,6 +9,7 @@ const sequelizePromise = require('./sequelize');
 const loggerPromise = require('./logger');
 const dataloaders = require('../app/dataloaders');
 const { decodeUser } = require('../app/utils/authentication');
+const errorCodes = require('../app/errors/code');
 
 const rootPath = config.get('rootPath');
 
@@ -81,6 +82,7 @@ async function init() {
         sequelize,
         guard,
         logger,
+        errorCodes,
       };
     },
   });

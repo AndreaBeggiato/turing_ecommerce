@@ -9,6 +9,7 @@ const config = {
     password: 'password',
     options: {
       dialect: 'sqlite',
+      logging: false,
     },
   },
 };

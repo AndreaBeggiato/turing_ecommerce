@@ -1,0 +1,41 @@
+version: '3.3'
+services:
+  mysql:
+    image: mysql
+    ports:
+     - "3307:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    env_file:
+      - ./env/mysql.env
+    expose:
+      - '3306'
+    volumes:
+     - ./tmp/mysql:/docker-entrypoint-initdb.d
+  backend:
+    build: ./backend/.
+    env_file:
+      - ./env/backend.env
+    command: yarn run dev
+    volumes:
+      - ./backend/:/home/node/backend:delegated
+      - ./.git/:/home/node/.git:delegated
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - mysql
+  frontend:
+    build: ./frontend/.
+    env_file:
+      - ./env/frontend.env
+    command: yarn start
+    volumes:
+      - ./frontend/:/home/node/frontend:delegated
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - SKIP_PREFLIGHT_CHECK=true
+    depends_on:
+      - backend

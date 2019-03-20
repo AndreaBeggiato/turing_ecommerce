@@ -8,5 +8,8 @@ module.exports = {
       }
       return true;
     },
+    create: auth => auth && auth.isAdmin(),
+    update: auth => auth && auth.isAdmin(),
+    destroy: auth => auth && auth.isAdmin(),
   },
 };

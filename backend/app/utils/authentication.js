@@ -5,7 +5,7 @@ const decodeUser = async (logger, token) => {
   try {
     const result = await firebaseAdmin.auth().verifyIdToken(token);
     result.isAnonymous = () => result.provider_id === 'anonymous';
-    result.isAdmin = () => result.email && result.email.endsWith('@geekcups.com');
+    result.isAdmin = () => result.email && result.email.endsWith('@admin.com');
     return result;
   }
   catch (e) {

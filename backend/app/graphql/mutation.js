@@ -4,7 +4,7 @@ const customerMyUpdate = require('./mutations/customers/myUpdate');
 const typeDefinition = `
   type Mutation {
     shoppingCartAddProduct(input: ShoppingCartAddProductInput!): ShoppingCartAddProductPayload!
-    customerMyUpdate(input: CustomerMyUpdate!): CustomerMyPayload!
+    customerMyUpdate(input: CustomerMyUpdateInput!): CustomerMyUpdatePayload!
 }
 `;
 

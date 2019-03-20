@@ -58,7 +58,7 @@ const init = (sequelize) => {
     },
   );
 
-  Category.authScope = async () => ({ where: { } });
+  Order.authScope = async () => ({ where: { } });
 };
 
 module.exports = init;

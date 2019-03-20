@@ -28,13 +28,8 @@ const validate = async (input, context) => {
   } = input;
 
   const realCategoryId = parseInt(fromGlobalId(id).id, 10);
-  const Product = sequelize.model('Product');
-  const count = await Product.count({
-    include: [{
-      model: 'Category',
-      where: { categoryId: realCategoryId },
-    }],
-  });
+  const ProductCategory = sequelize.model('ProductCategory');
+  const count = await ProductCategory.count({ where: { categoryId: realCategoryId } });
 
   if (count > 0) {
     throw new UserInputError(errors.CATEGORY_HAS_PRODUCTS);

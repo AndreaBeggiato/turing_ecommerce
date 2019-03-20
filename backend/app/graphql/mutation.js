@@ -1,12 +1,17 @@
+const shoppingCartAddProduct = require('./mutations/shoppingCarts/addProduct');
+const customerMyUpdate = require('./mutations/customers/myUpdate');
+
 const typeDefinition = `
   type Mutation {
-    hello(input: String!): String!
+    shoppingCartAddProduct(input: ShoppingCartAddProductInput!): ShoppingCartAddProductPayload!
+    customerMyUpdate(input: CustomerMyUpdate!): CustomerMyPayload!
 }
 `;
 
 const resolver = {
   Mutation: {
-    hello: () => 'hey',
+    shoppingCartAddProduct: shoppingCartAddProduct.mutate,
+    customerMyUpdate: customerMyUpdate.mutate,
   },
 };
 

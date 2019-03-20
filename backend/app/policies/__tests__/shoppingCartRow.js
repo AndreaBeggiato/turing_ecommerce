@@ -16,4 +16,11 @@ describe('Shopping Cart Row policy', () => {
       expect(result).toBeTruthy();
     });
   });
+
+  describe('#create', () => {
+    test('Should return truthy', async () => {
+      const result = await policy.methods.create();
+      expect(result).toBeTruthy();
+    });
+  });
 });

@@ -13,6 +13,9 @@ const config = {
       host: process.env.MYSQL_HOST,
     },
   },
+  stripe: {
+    secretKey: process.env.STIPRE_SECRET_KEY,
+  },
   firebase: {
     type: process.env.FIREBASE_TYPE,
     project_id: process.env.FIREBASE_PROJECT_ID,

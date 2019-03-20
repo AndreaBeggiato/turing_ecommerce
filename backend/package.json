@@ -24,7 +24,8 @@
     "mysql2": "^1.6.5",
     "pino": "^5.11.1",
     "randomstring": "^1.1.5",
-    "sequelize": "^5.1.0"
+    "sequelize": "^5.1.0",
+    "stripe": "^6.28.0"
   },
   "devDependencies": {
     "eslint": "^5.15.2",

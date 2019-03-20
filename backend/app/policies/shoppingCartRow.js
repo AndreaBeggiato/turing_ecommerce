@@ -3,5 +3,6 @@ module.exports = {
   methods: {
     list: () => true,
     show: () => true,
+    create: () => true,
   },
 };

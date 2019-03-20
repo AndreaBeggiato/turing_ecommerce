@@ -27,6 +27,11 @@ const init = (sequelize) => {
         defaultValue: 0,
         allowNull: false,
       },
+      categoryId: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: false,
+      },
       primaryImage: {
         type: Sequelize.STRING,
         allowNull: true,

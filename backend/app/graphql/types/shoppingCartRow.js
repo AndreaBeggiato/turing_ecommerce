@@ -20,7 +20,7 @@ const resolver = {
         errorCodes,
       } = context;
 
-      const product = dataloaders.default('Product').load(source.productId);
+      const product = await dataloaders.default('Product').load(source.productId);
 
       if (await guard.allows('product.show', product)) {
         return product;

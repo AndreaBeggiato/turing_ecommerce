@@ -21,7 +21,7 @@ const typeDefinition = `
     clientMutationId: String
   }
 
-  type ShoppingCartPayload {
+  type ShoppingCartAddProductPayload {
     shoppingCart: ShoppingCart!
     clientMutationId: String
   }
@@ -117,6 +117,7 @@ const mutate = async (source, { input }, context) => {
     }
 
     shoppingCartRow.addedOn = new Date();
+    shoppingCartRow.buyNow = 1;
 
     await shoppingCartRow.save();
 

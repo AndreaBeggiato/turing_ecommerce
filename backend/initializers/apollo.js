@@ -1,5 +1,6 @@
 const config = require('config');
 const glob = require('glob');
+const stripe = require('stripe');
 const { Guard } = require('@slynova/fence');
 const { ApolloServer, gql } = require('apollo-server-express');
 const query = require('../app/graphql/query');
@@ -12,6 +13,9 @@ const { decodeUser } = require('../app/utils/authentication');
 const errorCodes = require('../app/errors/code');
 
 const rootPath = config.get('rootPath');
+const stripeConfig = config.get('stripe');
+
+const stripeClient = stripe(stripeConfig.secretKey);
 
 async function init() {
   const app = await expressPromise;
@@ -83,6 +87,7 @@ async function init() {
         guard,
         logger,
         errorCodes,
+        stripeClient,
       };
     },
   });

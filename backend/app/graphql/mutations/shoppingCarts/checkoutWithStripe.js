@@ -6,6 +6,7 @@ const errors = {
   EMPTY_CART: 'EMPTY_CART',
   EMPTY_CUSTOMER: 'EMPTY_CUSTOMER',
   CUSTOMER_NEED_A_COMPLETE_ADDRESS: 'CUSTOMER_NEED_A_COMPLETE_ADDRESS',
+  PAYMENT_ERROR: 'PAYMENT_ERROR',
 };
 
 const typeDefinition = `
@@ -26,10 +27,12 @@ const validate = async (input, context) => {
   const {
     sequelize,
     currentAuth,
+    stripeClient,
   } = context;
   const {
     cartCode,
     taxId,
+    token,
   } = input;
 
   const ShoppingCartRow = sequelize.model('ShoppingCartRow');
@@ -62,6 +65,24 @@ const validate = async (input, context) => {
 
   if (!customer.hasCompleteAddress()) {
     throw new UserInputError(errors.CUSTOMER_NEED_A_COMPLETE_ADDRESS);
+  }
+
+  const rowSubTotals = await Promise.all(shoppingCartRows.map(async (scr) => {
+    const product = await scr.getProduct();
+    return (product.discountedPrice > 0 ? product.discountedPrice : product.price)
+      * scr.quantity;
+  }));
+  const totalAmount = rowSubTotals.reduce((acc, item) => acc + item, 0);
+
+  try {
+    await stripeClient.charges.create({
+      amount: totalAmount * 100,
+      currency: 'usd',
+      source: token,
+    });
+  }
+  catch (e) {
+    throw new UserInputError(errors.PAYMENT_ERROR, { originalError: e });
   }
 };
 
@@ -114,13 +135,21 @@ const mutate = async (source, { input }, context) => {
     await Promise.all(shoppingCartRows.map(async (scr) => {
       const product = await scr.getProduct();
       return OrderDetail.create({
-        attributes: scr.sttributes,
+        attributes: scr.attributes,
+        quantity: scr.quantity,
         orderId: order.id,
         productId: product.id,
         productName: product.name,
         unitCost: product.discountedPrice > 0 ? product.discountedPrice : product.price,
       });
     }));
+
+    await ShoppingCartRow.destroy({
+      where: {
+        buyNow: 1,
+        cartId: cartCode,
+      },
+    });
 
     return {
       orderId: toGlobalId('Order', order.id),

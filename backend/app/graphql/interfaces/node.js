@@ -23,6 +23,9 @@ const resolver = {
       if (obj instanceof sequelize.model('AttributeValue')) {
         return 'AttributeValue';
       }
+      if (obj instanceof sequelize.model('ShippingRegion')) {
+        return 'ShippingRegion';
+      }
       return null;
     },
   },

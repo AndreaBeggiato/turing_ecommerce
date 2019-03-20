@@ -8,6 +8,9 @@ const typeDefinition = `
     node(id: ID!): Node!
     departments: [Department!]!
     products(first: Int, last: Int, before: String, after: String, filter: ProductFilter): ProductConnection!
+    shoppingCart(cartCode: String!): ShoppingCart!
+    shippingRegions: [ShippingRegion!]!
+    myCustomer: Customer,
   }
 `;
 
@@ -44,6 +47,12 @@ const resolver = {
       if (type === 'AttributeValue') {
         if (await guard.allows('attributeValue.show')) {
           return dataloaders.default('AttributeValue').load(realId);
+        }
+        throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
+      }
+      if (type === 'ShippingRegion') {
+        if (await guard.allows('shippingRegion.show')) {
+          return dataloaders.default('ShippingRegion').load(realId);
         }
         throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
       }
@@ -95,6 +104,47 @@ const resolver = {
         return resolveConnection(source, args, context, info);
       }
       throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
+    },
+    shoppingCart: (source, args) => args.cartCode,
+    shippingRegions: async (source, args, context) => {
+      const {
+        sequelize,
+        dataloaders,
+        guard,
+        currentAuth,
+        errorCodes,
+      } = context;
+      const ShippingRegion = sequelize.model('ShippingRegion');
+      if (await guard.allows('shippingRegion.list')) {
+        const shippingRegions = await ShippingRegion
+          .findAll(await ShippingRegion.authScope(currentAuth));
+        const ids = shippingRegions.map(r => r.id);
+        ids.forEach(id => dataloaders.default('ShippingRegion').prime(id, shippingRegions.find(r => r.id === id)));
+        return dataloaders.default('ShippingRegion').loadMany(ids);
+      }
+      throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
+    },
+    myCustomer: async (source, args, context) => {
+      const {
+        sequelize,
+        dataloaders,
+        guard,
+        currentAuth,
+        errorCodes,
+      } = context;
+      if (currentAuth) {
+        const Customer = sequelize.model('Customer');
+        const customer = await Customer.findOne({ where: { email: currentAuth.email } });
+        if (customer) {
+          dataloaders.default('Customer').prime(customer.id, customer);
+          if (await guard.allows('customer.show', customer)) {
+            return customer;
+          }
+          throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
+        }
+        return null;
+      }
+      return null;
     },
   },
 };

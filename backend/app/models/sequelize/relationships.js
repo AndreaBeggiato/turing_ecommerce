@@ -5,6 +5,8 @@ const init = (sequelize) => {
   const Attribute = sequelize.model('Attribute');
   const AttributeValue = sequelize.model('AttributeValue');
   const ShoppingCartRow = sequelize.model('ShoppingCartRow');
+  const Customer = sequelize.model('ShippingRegion');
+  const ShippingRegion = sequelize.model('ShippingRegion');
 
   const ProductCategory = sequelize.model('ProductCategory');
   const ProductAttributeValue = sequelize.model('ProductAttributeValue');
@@ -22,6 +24,8 @@ const init = (sequelize) => {
   AttributeValue.productsAssociation = AttributeValue.belongsToMany(Product, { through: ProductAttributeValue, foreignKey: 'attributeValueId' });
 
   ShoppingCartRow.productAssociation = ShoppingCartRow.belongsTo(Product, { foreignKey: 'product_id', targetKey: 'id' });
+
+  Customer.shippingRegionAssociation = Customer.belongsTo(ShippingRegion, { foreignKey: 'shippingRegionId', targetKey: 'id' });
 };
 
 module.exports = init;

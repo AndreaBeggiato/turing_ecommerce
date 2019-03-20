@@ -5,21 +5,21 @@ const { toGlobalId } = require('graphql-relay');
 const errorCodes = require('../../../../errors/code');
 const sequelizePromise = require('../../../../../initializers/sequelize');
 
-const destroy = require('../destroy');
+const update = require('../update');
 
-describe('Department destroy', () => {
+describe('Category update', () => {
   describe('#mutate', () => {
-    describe('With existing department', () => {
-      let department;
+    describe('With existing category', () => {
+      let category;
       let input;
       beforeEach(async () => {
-        department = await factory.create('Department');
+        category = await factory.create('Category');
         input = {
-          id: toGlobalId('Department', department.id),
+          id: toGlobalId('Category', category.id),
         };
       });
 
-      describe('Without guard allows department destroy', () => {
+      describe('Without guard allows category update', () => {
         let guard;
         let sequelize;
         beforeEach(async () => {
@@ -32,17 +32,17 @@ describe('Department destroy', () => {
 
         test('Should call guard allows with correct args', async () => {
           try {
-            await destroy.mutate(null, { input }, { guard, errorCodes, sequelize });
+            await update.mutate(null, { input }, { guard, errorCodes, sequelize });
           }
           catch(e) { } // eslint-disable-line
           finally {
-            expect(guard.allows).toBeCalledWith('department.destroy', expect.objectContaining({ id: department.id }));
+            expect(guard.allows).toBeCalledWith('category.update', expect.objectContaining({ id: category.id }));
           }
         });
 
         test('Should throw AuthenticationError', async () => {
           try {
-            await destroy.mutate(null, { input }, { guard, errorCodes, sequelize });
+            await update.mutate(null, { input }, { guard, errorCodes, sequelize });
           }
           catch (err) {
             expect(err).toBeInstanceOf(AuthenticationError);
@@ -52,7 +52,7 @@ describe('Department destroy', () => {
         });
       });
 
-      describe('With guard allows department destroy', () => {
+      describe('With guard allows category update', () => {
         let guard;
         beforeEach(() => {
           guard = {
@@ -65,40 +65,43 @@ describe('Department destroy', () => {
           let sequelize;
           beforeEach(async () => {
             sequelize = await sequelizePromise;
+            const department = await factory.create('Department');
+            input.name = 'new name';
+            input.departmentId = toGlobalId('Department', department.id);
           });
 
           test('Should call guard allows with correct args', async () => {
-            await destroy.mutate(null, { input }, { guard, errorCodes, sequelize });
-            expect(guard.allows).toBeCalledWith('department.destroy', expect.objectContaining({ id: department.id }));
+            await update.mutate(null, { input }, { guard, errorCodes, sequelize });
+            expect(guard.allows).toBeCalledWith('category.update', expect.objectContaining({ id: category.id }));
           });
 
-          test('Should decrease departments count', async () => {
-            const Department = sequelize.model('Department');
-            const beforeCount = await Department.count();
-            await destroy.mutate(null, { input }, { guard, errorCodes, sequelize });
-            const afterCount = await Department.count();
-            expect(beforeCount - 1).toBe(afterCount);
+          test('Should update category', async () => {
+            await update.mutate(null, { input }, { guard, errorCodes, sequelize });
+            await category.reload();
+            expect(category.name).toBe(input.name);
           });
         });
 
-        describe('With incorrect input', () => {
+        describe('Without correct input', () => {
           let sequelize;
           beforeEach(async () => {
             sequelize = await sequelizePromise;
           });
 
-          describe('With department with categories', () => {
+          describe('With unexisting department', () => {
             beforeEach(async () => {
-              await factory.create('Category', { departmentId: department.id });
+              sequelize = await sequelizePromise;
+              input.name = 'new name';
+              input.departmentId = toGlobalId('Department', -1);
             });
 
             test('Should throw UserInputError with correct code', async () => {
               try {
-                await destroy.mutate(null, { input }, { guard, errorCodes, sequelize });
+                await update.mutate(null, { input }, { guard, errorCodes, sequelize });
               }
               catch (err) {
                 expect(err).toBeInstanceOf(UserInputError);
-                expect(err.message).toBe('DEPARTMENT_HAS_CATEGORIES');
+                expect(err.message).toBe('DEPARTMENT_NOT_FOUND');
                 return;
               }
               expect(true).toBe(false);
@@ -108,23 +111,23 @@ describe('Department destroy', () => {
       });
     });
 
-    describe('With unexisting department', () => {
+    describe('With unexisting category', () => {
       let input;
       let sequelize;
       beforeEach(async () => {
         sequelize = await sequelizePromise;
         input = {
-          id: toGlobalId('Department', -1),
+          id: toGlobalId('Category', -1),
         };
       });
 
       test('Should throw UserInputError with correct code', async () => {
         try {
-          await destroy.mutate(null, { input }, { errorCodes, sequelize });
+          await update.mutate(null, { input }, { errorCodes, sequelize });
         }
         catch (err) {
           expect(err).toBeInstanceOf(UserInputError);
-          expect(err.message).toBe('DEPARTMENT_NOT_FOUND');
+          expect(err.message).toBe('CATEGORY_NOT_FOUND');
           return;
         }
         expect(true).toBe(false);

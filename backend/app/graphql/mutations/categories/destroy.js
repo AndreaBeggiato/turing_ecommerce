@@ -2,17 +2,17 @@ const { fromGlobalId } = require('graphql-relay');
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
 
 const errors = {
-  DEPARTMENT_NOT_FOUND: 'DEPARTMENT_NOT_FOUND',
-  DEPARTMENT_HAS_CATEGORIES: 'DEPARTMENT_HAS_CATEGORIES',
+  CATEGORY_NOT_FOUND: 'CATEGORY_NOT_FOUND',
+  CATEGORY_HAS_PRODUCTS: 'CATEGORY_HAS_PRODUCTS',
 };
 
 const typeDefinition = `
-  input DepartmentDestroyInput {
+  input CategoryDestroyInput {
     id: ID!
     clientMutationId: String
   }
 
-  type DepartmentDestroyPayload {
+  type CategoryDestroyPayload {
     success: Boolean!
     clientMutationId: String
   }
@@ -27,12 +27,17 @@ const validate = async (input, context) => {
     id,
   } = input;
 
-  const realDepartmentId = parseInt(fromGlobalId(id).id, 10);
-  const Category = sequelize.model('Category');
-  const count = await Category.count({ where: { departmentId: realDepartmentId } });
+  const realCategoryId = parseInt(fromGlobalId(id).id, 10);
+  const Product = sequelize.model('Product');
+  const count = await Product.count({
+    include: [{
+      model: 'Category',
+      where: { categoryId: realCategoryId },
+    }],
+  });
 
   if (count > 0) {
-    throw new UserInputError(errors.DEPARTMENT_HAS_CATEGORIES);
+    throw new UserInputError(errors.CATEGORY_HAS_PRODUCTS);
   }
 };
 
@@ -47,14 +52,14 @@ const mutate = async (source, { input }, context) => {
     clientMutationId,
   } = input;
 
-  const realDepartmentId = parseInt(fromGlobalId(id).id, 10);
-  const Department = sequelize.model('Department');
-  const department = await Department.findByPk(realDepartmentId);
-  if (department) {
-    if (await guard.allows('department.destroy', department)) {
+  const realCategoryId = parseInt(fromGlobalId(id).id, 10);
+  const Category = sequelize.model('Category');
+  const category = await Category.findByPk(realCategoryId);
+  if (category) {
+    if (await guard.allows('category.destroy', category)) {
       await validate(input, context);
 
-      await department.destroy();
+      await category.destroy();
 
       return {
         success: true,
@@ -65,7 +70,7 @@ const mutate = async (source, { input }, context) => {
     throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
   }
 
-  throw new UserInputError(errors.DEPARTMENT_NOT_FOUND);
+  throw new UserInputError(errors.CATEGORY_NOT_FOUND);
 };
 
 module.exports = { typeDefinition, mutate };

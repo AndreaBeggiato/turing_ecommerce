@@ -7,19 +7,19 @@ const sequelizePromise = require('../../../../../initializers/sequelize');
 
 const destroy = require('../destroy');
 
-describe('Department destroy', () => {
+describe('Category destroy', () => {
   describe('#mutate', () => {
-    describe('With existing department', () => {
-      let department;
+    describe('With existing category', () => {
+      let category;
       let input;
       beforeEach(async () => {
-        department = await factory.create('Department');
+        category = await factory.create('Category');
         input = {
-          id: toGlobalId('Department', department.id),
+          id: toGlobalId('Category', category.id),
         };
       });
 
-      describe('Without guard allows department destroy', () => {
+      describe('Without guard allows category destroy', () => {
         let guard;
         let sequelize;
         beforeEach(async () => {
@@ -36,7 +36,7 @@ describe('Department destroy', () => {
           }
           catch(e) { } // eslint-disable-line
           finally {
-            expect(guard.allows).toBeCalledWith('department.destroy', expect.objectContaining({ id: department.id }));
+            expect(guard.allows).toBeCalledWith('category.destroy', expect.objectContaining({ id: category.id }));
           }
         });
 
@@ -52,7 +52,7 @@ describe('Department destroy', () => {
         });
       });
 
-      describe('With guard allows department destroy', () => {
+      describe('With guard allows category destroy', () => {
         let guard;
         beforeEach(() => {
           guard = {
@@ -69,14 +69,14 @@ describe('Department destroy', () => {
 
           test('Should call guard allows with correct args', async () => {
             await destroy.mutate(null, { input }, { guard, errorCodes, sequelize });
-            expect(guard.allows).toBeCalledWith('department.destroy', expect.objectContaining({ id: department.id }));
+            expect(guard.allows).toBeCalledWith('category.destroy', expect.objectContaining({ id: category.id }));
           });
 
-          test('Should decrease departments count', async () => {
-            const Department = sequelize.model('Department');
-            const beforeCount = await Department.count();
+          test('Should decrease categories count', async () => {
+            const Category = sequelize.model('Category');
+            const beforeCount = await Category.count();
             await destroy.mutate(null, { input }, { guard, errorCodes, sequelize });
-            const afterCount = await Department.count();
+            const afterCount = await Category.count();
             expect(beforeCount - 1).toBe(afterCount);
           });
         });
@@ -87,9 +87,10 @@ describe('Department destroy', () => {
             sequelize = await sequelizePromise;
           });
 
-          describe('With department with categories', () => {
+          describe('With category with products', () => {
             beforeEach(async () => {
-              await factory.create('Category', { departmentId: department.id });
+              const product = await factory.create('Product');
+              await product.addCategory(category);
             });
 
             test('Should throw UserInputError with correct code', async () => {
@@ -98,7 +99,7 @@ describe('Department destroy', () => {
               }
               catch (err) {
                 expect(err).toBeInstanceOf(UserInputError);
-                expect(err.message).toBe('DEPARTMENT_HAS_CATEGORIES');
+                expect(err.message).toBe('CATEGORY_HAS_PRODUCTS');
                 return;
               }
               expect(true).toBe(false);
@@ -108,13 +109,13 @@ describe('Department destroy', () => {
       });
     });
 
-    describe('With unexisting department', () => {
+    describe('With unexisting category', () => {
       let input;
       let sequelize;
       beforeEach(async () => {
         sequelize = await sequelizePromise;
         input = {
-          id: toGlobalId('Department', -1),
+          id: toGlobalId('Category', -1),
         };
       });
 
@@ -124,7 +125,7 @@ describe('Department destroy', () => {
         }
         catch (err) {
           expect(err).toBeInstanceOf(UserInputError);
-          expect(err.message).toBe('DEPARTMENT_NOT_FOUND');
+          expect(err.message).toBe('CATEGORY_NOT_FOUND');
           return;
         }
         expect(true).toBe(false);

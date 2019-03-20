@@ -59,8 +59,49 @@ describe('Shopping Cart checkoutWithStripe', () => {
         }
       });
 
-      // describe('With correct input', () => {
-      // });
+      describe('With correct input', () => {
+        let sequelize;
+        let customer;
+        let input;
+        let stripeClient;
+        let currentAuth;
+        beforeEach(async () => {
+          sequelize = await sequelizePromise;
+          stripeClient = {
+            charge: jest.fn(),
+          };
+          customer = await factory.create('Customer');
+          currentAuth = {
+            email: customer.email,
+          };
+          const tax = await factory.create('Tax');
+          const firstCartRow = await factory.create('ShoppingCartRow');
+          await factory.create('ShoppingCartRow', { cartId: firstCartRow.cartId, quantity: 2 });
+          input = {
+            cartCode: firstCartRow.cartId,
+            taxId: toGlobalId('Tax', tax.id),
+            token: 'stripeToken',
+          };
+        });
+
+        test('Should increase orders count', async () => {
+          const Order = sequelize.model('Order');
+          const beforeCount = await Order.count();
+          await checkoutWithStripe.mutate(
+            null,
+            { input },
+            {
+              guard,
+              errorCodes,
+              sequelize,
+              currentAuth,
+              stripeClient,
+            },
+          );
+          const afterCount = await Order.count();
+          expect(beforeCount + 1).toBe(afterCount);
+        });
+      });
       //
       // describe('Without correct input', () => {
       // });

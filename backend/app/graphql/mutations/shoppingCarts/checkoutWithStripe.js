@@ -43,7 +43,7 @@ const validate = async (input, context) => {
     throw new UserInputError(errors.TAX_NOT_FOUND);
   }
 
-  const shoppingCartRows = await ShoppingCartRow.find({
+  const shoppingCartRows = await ShoppingCartRow.findAll({
     where: {
       buyNow: 1,
       cartId: cartCode,
@@ -89,7 +89,7 @@ const mutate = async (source, { input }, context) => {
     const customer = await Customer.findOne({ where: { email: currentAuth.email } });
 
     const realTaxId = parseInt(fromGlobalId(taxId).id, 10);
-    const shoppingCartRows = await ShoppingCartRow.find({
+    const shoppingCartRows = await ShoppingCartRow.findAll({
       where: {
         buyNow: 1,
         cartId: cartCode,

@@ -40,7 +40,7 @@ const init = (sequelize) => {
       },
     },
     {
-      tableName: 'shopping_cart',
+      tableName: 'order_detail',
       freeTableName: true,
       timestamps: false,
     },

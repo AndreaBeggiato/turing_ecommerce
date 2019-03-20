@@ -52,7 +52,7 @@ const init = (sequelize) => {
       },
     },
     {
-      tableName: 'order',
+      tableName: 'orders',
       freeTableName: true,
       timestamps: false,
     },

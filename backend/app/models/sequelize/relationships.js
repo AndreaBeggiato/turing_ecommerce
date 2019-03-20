@@ -32,7 +32,7 @@ const init = (sequelize) => {
 
   Order.taxAssociation = Order.belongsTo(Tax, { foreignKey: 'taxId', targetKey: 'id' });
 
-  Order.orderDetailsAssociation = OrderDetail.hasMany(Order, { foreignKey: 'orderId', sourceKey: 'id' });
+  Order.orderDetailsAssociation = Order.hasMany(OrderDetail, { foreignKey: 'orderId', sourceKey: 'id' });
   OrderDetail.orderAssociation = OrderDetail.belongsTo(Order, { foreignKey: 'orderId', targetKey: 'id' });
 };
 

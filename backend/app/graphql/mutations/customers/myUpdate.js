@@ -41,7 +41,7 @@ const validate = async (input, context) => {
 
   const shippingRegion = await ShippingRegion.findByPk(realShippingRegionId);
 
-  if (shippingRegion) {
+  if (!shippingRegion) {
     throw new UserInputError(errors.SHIPPING_REGION_NOT_FOUND);
   }
 };
@@ -69,12 +69,12 @@ const mutate = async (source, { input }, context) => {
     clientMutationId,
   } = input;
 
-  const Customer = sequelize.model('Customer');
 
-  if (currentAuth && currentAuth.email) {
+  if (currentAuth && !currentAuth.isAnonymous()) {
+    const Customer = sequelize.model('Customer');
     let customer = await Customer.findOne({ where: { email: currentAuth.email } });
     if (!customer) {
-      customer = Customer.build({ email: currentAuth.email });
+      customer = Customer.build({ email: currentAuth.email, password: 'unused' });
     }
 
     if (await guard.allows('customer.update', customer)) {

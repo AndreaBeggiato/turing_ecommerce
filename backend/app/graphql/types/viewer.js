@@ -21,38 +21,51 @@ const resolver = {
       const { dataloaders, guard, errorCodes } = context;
       const { type, id: realId } = fromGlobalId(id);
       if (type === 'Department') {
-        if (await guard.allows('department.show')) {
-          return dataloaders.default('Department').load(realId);
+        const node = await dataloaders.default('Department').load(realId);
+        if (await guard.allows('department.show', node)) {
+          return node;
         }
         throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
       }
-      if (type === 'Product') {
-        if (await guard.allows('product.show')) {
-          return dataloaders.default('Product').load(realId);
+      else if (type === 'Product') {
+        const node = await dataloaders.default('Product').load(realId);
+        if (await guard.allows('product.show', node)) {
+          return node;
         }
         throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
       }
-      if (type === 'Category') {
-        if (await guard.allows('category.show')) {
-          return dataloaders.default('Category').load(realId);
+      else if (type === 'Category') {
+        const node = await dataloaders.default('Category').load(realId);
+        if (await guard.allows('category.show', node)) {
+          return node;
         }
         throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
       }
-      if (type === 'Attribute') {
-        if (await guard.allows('attribute.show')) {
-          return dataloaders.default('Attribute').load(realId);
+      else if (type === 'Attribute') {
+        const node = await dataloaders.default('Attribute').load(realId);
+        if (await guard.allows('attribute.show', node)) {
+          return node;
         }
         throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
       }
-      if (type === 'AttributeValue') {
-        if (await guard.allows('attributeValue.show')) {
-          return dataloaders.default('AttributeValue').load(realId);
+      else if (type === 'AttributeValue') {
+        const node = await dataloaders.default('AttributeValue').load(realId);
+        if (await guard.allows('attributeValue.show', node)) {
+          return node;
         }
         throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
       }
-      if (type === 'ShippingRegion') {
-        if (await guard.allows('shippingRegion.show')) {
-          return dataloaders.default('ShippingRegion').load(realId);
+      else if (type === 'ShippingRegion') {
+        const node = await dataloaders.default('ShippingRegion').load(realId);
+        if (await guard.allows('shippingRegion.show', node)) {
+          return node;
+        }
+        throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
+      }
+      else if (type === 'Customer') {
+        const node = await dataloaders.default('Customer').load(realId);
+        if (await guard.allows('customer.show', node)) {
+          return node;
         }
         throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
       }

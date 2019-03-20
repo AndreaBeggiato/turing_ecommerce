@@ -13,7 +13,7 @@ const typeDefinition = `
   }
 
   type DepartmentDestroyPayload {
-    success: Bool
+    success: Boolean!
     clientMutationId: String
   }
 `;

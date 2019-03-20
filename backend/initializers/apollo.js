@@ -72,7 +72,8 @@ async function init() {
   const apolloServer = new ApolloServer({
     typeDefs,
     resolvers,
-    initrospection: true,
+    introspection: true,
+    playground: true,
     context: async ({ req }) => {
       let token;
       if (req.headers.authorization && req.headers.authorization.toLowerCase().startsWith('bearer')) {

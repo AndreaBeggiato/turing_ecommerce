@@ -8,6 +8,7 @@ const mutation = require('../app/graphql/mutation');
 const expressPromise = require('./express');
 const sequelizePromise = require('./sequelize');
 const loggerPromise = require('./logger');
+const mailerFunctionPromise = require('./nodemailer');
 const dataloaders = require('../app/dataloaders');
 const { decodeUser } = require('../app/utils/authentication');
 const errorCodes = require('../app/errors/code');
@@ -21,6 +22,7 @@ async function init() {
   const app = await expressPromise;
   const logger = await loggerPromise;
   const sequelize = await sequelizePromise;
+  const mailerFunction = await mailerFunctionPromise;
   const interfaceFiles = glob.sync(`${rootPath}/app/graphql/interfaces/*.js`);
   const typeFiles = glob.sync(`${rootPath}/app/graphql/types/*.js`);
   const mutationFiles = glob.sync(`${rootPath}/app/graphql/mutations/**/*.js`);
@@ -88,6 +90,7 @@ async function init() {
         logger,
         errorCodes,
         stripeClient,
+        mailer: mailerFunction(),
       };
     },
   });

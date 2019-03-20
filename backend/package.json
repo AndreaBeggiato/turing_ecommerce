@@ -22,7 +22,9 @@
     "graphql-relay": "^0.6.0",
     "graphql-sequelize": "^9.3.4",
     "mysql2": "^1.6.5",
+    "nodemailer": "^5.1.1",
     "pino": "^5.11.1",
+    "pug": "^2.0.3",
     "randomstring": "^1.1.5",
     "sequelize": "^5.1.0",
     "stripe": "^6.28.0"

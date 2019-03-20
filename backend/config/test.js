@@ -1,4 +1,5 @@
 const path = require('path');
+const defer = require('config/defer').deferConfig;
 
 const config = {
   rootPath: path.join(__dirname, '..'),
@@ -12,6 +13,16 @@ const config = {
       logging: false,
     },
   },
+  mail: {
+    viewPath: defer(function root() {
+      return path.resolve(this.rootPath, 'mailTemplates');
+    }),
+    from: 'noreply@geekcups.com',
+    transporter: {
+      jsonTransport: true,
+    },
+  },
+
 };
 
 module.exports = config;

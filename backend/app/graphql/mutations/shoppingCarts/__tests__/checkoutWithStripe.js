@@ -1,6 +1,7 @@
 const { factory } = require('factory-girl');
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
 const { toGlobalId } = require('graphql-relay');
+const pino = require('pino');
 
 const errorCodes = require('../../../../errors/code');
 const sequelizePromise = require('../../../../../initializers/sequelize');
@@ -61,12 +62,18 @@ describe('Shopping Cart checkoutWithStripe', () => {
 
       describe('With correct input', () => {
         let sequelize;
+        let mailer;
+        let logger;
         let customer;
         let input;
         let stripeClient;
         let currentAuth;
         beforeEach(async () => {
           sequelize = await sequelizePromise;
+          mailer = {
+            sendMail: jest.fn((message, callback) => callback(null, message)),
+          };
+          logger = pino();
           stripeClient = {
             charges: {
               create: jest.fn(async () => true),
@@ -98,13 +105,15 @@ describe('Shopping Cart checkoutWithStripe', () => {
               sequelize,
               currentAuth,
               stripeClient,
+              mailer,
+              logger,
             },
           );
           const afterCount = await Order.count();
           expect(beforeCount + 1).toBe(afterCount);
         });
 
-        test('Should increase order details count', async () => {
+        test.only('Should increase order details count', async () => {
           const OrderDetail = sequelize.model('OrderDetail');
           const ShoppingCartRow = sequelize.model('ShoppingCartRow');
           const beforeCount = await OrderDetail.count();
@@ -119,6 +128,8 @@ describe('Shopping Cart checkoutWithStripe', () => {
               sequelize,
               currentAuth,
               stripeClient,
+              mailer,
+              logger,
             },
           );
           const afterCount = await OrderDetail.count();
@@ -136,6 +147,8 @@ describe('Shopping Cart checkoutWithStripe', () => {
               sequelize,
               currentAuth,
               stripeClient,
+              mailer,
+              logger,
             },
           );
 

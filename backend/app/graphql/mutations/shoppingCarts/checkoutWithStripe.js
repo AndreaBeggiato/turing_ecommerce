@@ -1,6 +1,13 @@
 const { fromGlobalId, toGlobalId } = require('graphql-relay');
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
 
+const pug = require('pug');
+const path = require('path');
+const config = require('config');
+
+const mailFrom = config.get('mail.from');
+const mailViewPath = config.get('mail.viewPath');
+
 const errors = {
   TAX_NOT_FOUND: 'TAX_NOT_FOUND',
   EMPTY_CART: 'EMPTY_CART',
@@ -22,6 +29,19 @@ const typeDefinition = `
     clientMutationId: String
   }
 `;
+
+
+function sendMail(logger, mailer, message) {
+  return new Promise((fulfill) => {
+    mailer.sendMail(message, (err, info) => {
+      if (err) {
+        logger.error(err);
+      }
+      logger.info(info);
+      fulfill();
+    });
+  });
+}
 
 const validate = async (input, context) => {
   const {
@@ -92,6 +112,8 @@ const mutate = async (source, { input }, context) => {
     guard,
     currentAuth,
     errorCodes,
+    mailer,
+    logger,
   } = context;
   const {
     cartCode,
@@ -150,6 +172,20 @@ const mutate = async (source, { input }, context) => {
         cartId: cartCode,
       },
     });
+
+    const templateFunction = pug.compileFile(path.join(mailViewPath, 'orderConfirmation.pug'));
+
+    const message = {
+      from: mailFrom,
+      to: currentAuth.email,
+      subject: 'Order confirmation',
+      html: templateFunction({
+        customer,
+        order,
+      }),
+    };
+
+    await sendMail(logger, mailer, message);
 
     return {
       orderId: toGlobalId('Order', order.id),

@@ -17,7 +17,7 @@ The _backend_ is implemented using **GraphQL** instead of **REST API** with the 
 
 **GraphQL** is a good choice for an ecommerce because most user interactions involve viewing records and not creating them. This scenario is perfect for implementing a client side cache system, and with GraphQL and [Apollo Client](https://www.apollographql.com/docs/) (available for different platforms) is super easy.
 
-You can find the backend at https://graphql-turing-ecommerce.geekcups.com. In this environment you can find a [GraphQL Playground](https://github.com/prisma/graphql-playground) at https://graphql-turing-ecommerce.geekcups.com/graphql where you can explore the graph and the schema documentation using this tool.
+You can find the backend at https://graphql-turing-ecommerce.geekcups.com. In this environment you can find a [GraphQL Playground](https://github.com/prisma/graphql-playground) at https://graphql-turing-ecommerce.geekcups.com/graphql where you can explore the graph and the schema documentation using this tool. **Http header for authorization can be setted in the bottom panel.**
 
 #### Folder structure
 
@@ -108,3 +108,94 @@ The "frontend" can be found at https://frontend-turing-ecommerce.geekcups.com. I
     Most of the code can remain the same. The mandatory steps are:
       - Deploy the backend code in one or more machines in the United States
       - Store images in a CDN located in the United States
+
+
+### Query example
+
+#### Viewer
+```
+{
+  viewer {
+    departments {
+      id
+      name
+      products(first: 1, filter: { searchText: "gal"}) {
+        edges {
+          node {
+            name
+          }
+        }
+      }
+    }
+    taxes {
+      id
+      name
+    }
+    products(first: 2) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    myCustomer {
+      email
+      hasCompleteAddress
+    }
+  }
+
+}
+
+```
+
+#### Update my customer
+
+```
+mutation {
+  customerMyUpdate(input: {
+    address1: "Address 11",
+    city: "City",
+    country:"Country",
+    name:"Name",
+    postalCode: "PostalCode",
+    region: "Region",
+    shippingRegionId: "U2hpcHBpbmdSZWdpb246Mw=="
+  }) {
+    customer {
+      id
+    }
+  }
+}
+```
+
+#### Shopping cart add product
+
+```
+mutation {
+  shoppingCartAddProduct(input: {
+    cartCode: "randomCartCode",
+    quantity: 2,
+    productId: "UHJvZHVjdDo0",
+    attributeValueIds: [],
+  }) {
+    shoppingCart {
+      id
+    }
+  }
+}
+
+```
+
+#### Shopping cart checkout with Stripe
+```
+mutation {
+  shoppingCartCheckoutWithStripe(input: {
+    cartCode: "randomCartCode",
+    taxId:"VGF4OjE=",
+    token: "tok_1EGR2JD8YNZqkJI5H6TGZ7Ja",
+  }) {
+    orderId
+  }
+}
+```

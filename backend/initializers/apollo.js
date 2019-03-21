@@ -74,6 +74,10 @@ async function init() {
     resolvers,
     introspection: true,
     playground: true,
+    formatError: (error) => {
+      logger.error(error);
+      return error;
+    },
     context: async ({ req }) => {
       let token;
       if (req.headers.authorization && req.headers.authorization.toLowerCase().startsWith('bearer')) {

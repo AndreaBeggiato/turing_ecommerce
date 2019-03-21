@@ -1,5 +1,17 @@
 const { AuthenticationError } = require('apollo-server-express');
 
+const mutationDescription = `
+"""
+  Create a new department
+
+  **Authentication:** ADMIN required
+
+  **Possible errors:**
+    - Authentication
+      - MISSING_AUTHORIZATION: User is not logged in or not an ADMIN
+"""
+`;
+
 const typeDefinition = `
   input DepartmentCreateInput {
     name: String!
@@ -41,4 +53,4 @@ const mutate = async (source, { input }, context) => {
   throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
 };
 
-module.exports = { typeDefinition, mutate };
+module.exports = { typeDefinition, mutate, mutationDescription };

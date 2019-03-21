@@ -31,7 +31,7 @@ const init = (sequelize) => {
       creditCard: {
         type: Sequelize.STRING,
         allowNull: true,
-        field: 'creditCard',
+        field: 'credit_card',
       },
       dayPhone: {
         type: Sequelize.STRING,
@@ -83,7 +83,7 @@ const init = (sequelize) => {
   );
 
   Customer.prototype.hasCompleteAddress = function hasCompleteAddress() {
-    return (
+    return !!(
       (this.address1 && this.address1.trim() !== '')
       && (this.city && this.city.trim() !== '')
       && (this.country && this.country.trim() !== '')

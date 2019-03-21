@@ -4,6 +4,9 @@ const { Op } = Sequelize;
 
 const typeDefinition = `
   input ProductFilter {
+    """
+    Text to search inside name and description
+    """
     searchText: String
   }
 `;

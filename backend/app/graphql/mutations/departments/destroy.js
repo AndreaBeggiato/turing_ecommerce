@@ -1,6 +1,20 @@
 const { fromGlobalId } = require('graphql-relay');
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
 
+const mutationDescription = `
+"""
+  Delete an existing department
+
+  **Authentication:** ADMIN required
+
+  **Possible errors:**
+    - Authentication
+      - MISSING_AUTHORIZATION: User is not logged in or not an ADMIN
+    - User input
+      - DEPARTMENT_NOT_FOUND: Cannot find the department with the provided _id_
+      - DEPARTMENT_HAS_CATEGORIES: This department is related with some categories. Delete the categories first.
+"""
+`;
 const errors = {
   DEPARTMENT_NOT_FOUND: 'DEPARTMENT_NOT_FOUND',
   DEPARTMENT_HAS_CATEGORIES: 'DEPARTMENT_HAS_CATEGORIES',
@@ -68,4 +82,4 @@ const mutate = async (source, { input }, context) => {
   throw new UserInputError(errors.DEPARTMENT_NOT_FOUND);
 };
 
-module.exports = { typeDefinition, mutate };
+module.exports = { typeDefinition, mutate, mutationDescription };

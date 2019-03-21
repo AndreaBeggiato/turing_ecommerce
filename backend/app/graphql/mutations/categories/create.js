@@ -1,6 +1,20 @@
 const { fromGlobalId } = require('graphql-relay');
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
 
+const mutationDescription = `
+"""
+  Create a new category
+
+  **Authentication:** ADMIN required
+
+  **Possible errors:**
+    - Authentication
+      - MISSING_AUTHORIZATION: User is not logged in or not an ADMIN
+    - User input
+      - DEPARTMENT_NOT_FOUND: Cannot find the department with the provided _departmentId_
+"""
+`;
+
 const errors = {
   DEPARTMENT_NOT_FOUND: 'DEPARTMENT_NOT_FOUND',
 };
@@ -70,4 +84,4 @@ const mutate = async (source, { input }, context) => {
   throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
 };
 
-module.exports = { typeDefinition, mutate };
+module.exports = { typeDefinition, mutate, mutationDescription };

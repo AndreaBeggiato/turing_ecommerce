@@ -1,6 +1,21 @@
 const { fromGlobalId } = require('graphql-relay');
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
 
+
+const mutationDescription = `
+"""
+  Create or update the customer related to the logged user
+
+  **Authentication:** NORMAL, ADMIN
+
+  **Possible errors:**
+    - Authentication
+      - MISSING_AUTHORIZATION: User is not logged or is anonymous
+    - User input
+      - SHIPPING_REGION_NOT_FOUND: Cannot find the shipping region with the provided _shippingRegionId_
+"""
+`;
+
 const errors = {
   SHIPPING_REGION_NOT_FOUND: 'SHIPPING_REGION_NOT_FOUND',
 };
@@ -95,7 +110,14 @@ const mutate = async (source, { input }, context) => {
       customer.region = region;
       customer.shippingRegionId = realShippingRegionId;
 
-      await customer.save();
+      try {
+        await customer.save();
+      }
+      catch (err) {
+        if (err.message !== 'Query was empty') { // Sequelize launch and complain about empty query if you change nothing. bah
+          throw err;
+        }
+      }
 
       return {
         customer,
@@ -109,4 +131,4 @@ const mutate = async (source, { input }, context) => {
   throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
 };
 
-module.exports = { typeDefinition, mutate };
+module.exports = { typeDefinition, mutate, mutationDescription };

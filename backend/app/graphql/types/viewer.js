@@ -10,6 +10,7 @@ const typeDefinition = `
     products(first: Int, last: Int, before: String, after: String, filter: ProductFilter): ProductConnection!
     shoppingCart(cartCode: String!): ShoppingCart!
     shippingRegions: [ShippingRegion!]!
+    taxes: [Tax!]!
     myCustomer: Customer,
   }
 `;
@@ -58,6 +59,13 @@ const resolver = {
       else if (type === 'ShippingRegion') {
         const node = await dataloaders.default('ShippingRegion').load(realId);
         if (await guard.allows('shippingRegion.show', node)) {
+          return node;
+        }
+        throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
+      }
+      else if (type === 'Tax') {
+        const node = await dataloaders.default('Tax').load(realId);
+        if (await guard.allows('tax.show', node)) {
           return node;
         }
         throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
@@ -134,6 +142,24 @@ const resolver = {
         const ids = shippingRegions.map(r => r.id);
         ids.forEach(id => dataloaders.default('ShippingRegion').prime(id, shippingRegions.find(r => r.id === id)));
         return dataloaders.default('ShippingRegion').loadMany(ids);
+      }
+      throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
+    },
+    taxes: async (source, args, context) => {
+      const {
+        sequelize,
+        dataloaders,
+        guard,
+        currentAuth,
+        errorCodes,
+      } = context;
+      const Tax = sequelize.model('Tax');
+      if (await guard.allows('tax.list')) {
+        const taxes = await Tax
+          .findAll(await Tax.authScope(currentAuth));
+        const ids = taxes.map(r => r.id);
+        ids.forEach(id => dataloaders.default('Tax').prime(id, taxes.find(r => r.id === id)));
+        return dataloaders.default('Tax').loadMany(ids);
       }
       throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
     },

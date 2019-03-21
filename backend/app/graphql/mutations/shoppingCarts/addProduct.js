@@ -4,6 +4,22 @@ const { AuthenticationError, UserInputError } = require('apollo-server-express')
 
 const { Op } = Sequelize;
 
+const mutationDescription = `
+"""
+  Add a product to the cart specified by the provided _cartCode_
+
+  **Authentication:** NONE, ANONYMOUS, NORMAL, ADMIN
+
+  **Possible errors:**
+    - User input
+      - CART_CODE_TOO_LONG: The provided _cartCode_ is too long. Maximum legnth is 32
+      - QUANTITY_TOO_LOW: Quantity must be greater then 0
+      - PRODUCT_NOT_FOUND: Cannot find the product with the provided _id_
+      - ATTRIBUTE_VALUES_NOT_IN_PRODUCT: Cannot find at least on attribute value in the product attributes
+      - MULTIPLE_ATTRIBUTE_VALUES_FOR_SAME_ATTRIBUTE: Multiple attribute values for the same attribute was provided
+"""
+`;
+
 const errors = {
   CART_CODE_TOO_LONG: 'CART_CODE_TOO_LONG',
   QUANTITY_TOO_LOW: 'QUANTITY_TOO_LOW',
@@ -14,6 +30,9 @@ const errors = {
 
 const typeDefinition = `
   input ShoppingCartAddProductInput {
+    """
+      Client side generated. Can be a random string of max 32 chars.
+    """
     cartCode: String!
     productId: ID!
     quantity: Int!
@@ -129,4 +148,4 @@ const mutate = async (source, { input }, context) => {
   throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
 };
 
-module.exports = { typeDefinition, mutate };
+module.exports = { typeDefinition, mutate, mutationDescription };

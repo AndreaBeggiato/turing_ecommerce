@@ -66,4 +66,3 @@ env
 backend/mysql
 
 ecosystem.config.js
-frontend

@@ -1,6 +1,21 @@
 const { fromGlobalId } = require('graphql-relay');
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
 
+const mutationDescription = `
+"""
+  Update an existing category
+
+  **Authentication:** ADMIN required
+
+  **Possible errors:**
+    - Authentication
+      - MISSING_AUTHORIZATION: User is not logged in or not an ADMIN
+    - User input
+      - CATEGORY_NOT_FOUND: Cannot find the category with the provided _id_
+      - DEPARTMENT_NOT_FOUND: Cannot find the department with the provided _departmentId_
+"""
+`;
+
 const errors = {
   CATEGORY_NOT_FOUND: 'CATEGORY_NOT_FOUND',
   DEPARTMENT_NOT_FOUND: 'DEPARTMENT_NOT_FOUND',
@@ -65,7 +80,14 @@ const mutate = async (source, { input }, context) => {
       category.description = description;
       category.departmentId = realDepartmentId;
 
-      await category.save();
+      try {
+        await category.save();
+      }
+      catch (err) {
+        if (err.message !== 'Query was empty') { // Sequelize launch and complain about empty query if you change nothing. bah
+          throw err;
+        }
+      }
 
       return {
         category,
@@ -79,4 +101,4 @@ const mutate = async (source, { input }, context) => {
   throw new UserInputError(errors.CATEGORY_NOT_FOUND);
 };
 
-module.exports = { typeDefinition, mutate };
+module.exports = { typeDefinition, mutate, mutationDescription };

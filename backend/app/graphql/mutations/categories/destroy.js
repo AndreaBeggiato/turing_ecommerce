@@ -1,6 +1,21 @@
 const { fromGlobalId } = require('graphql-relay');
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
 
+const mutationDescription = `
+"""
+  Destroy an existing category
+
+  **Authentication:** ADMIN required
+
+  **Possible errors:**
+    - Authentication
+      - MISSING_AUTHORIZATION: User is not logged in or not an ADMIN
+    - User input
+      - CATEGORY_NOT_FOUND: Cannot find the category with the provided _id_
+      - CATEGORY_HAS_PRODUCTS: This category is related with some products. Delete the products first.
+"""
+`;
+
 const errors = {
   CATEGORY_NOT_FOUND: 'CATEGORY_NOT_FOUND',
   CATEGORY_HAS_PRODUCTS: 'CATEGORY_HAS_PRODUCTS',
@@ -68,4 +83,4 @@ const mutate = async (source, { input }, context) => {
   throw new UserInputError(errors.CATEGORY_NOT_FOUND);
 };
 
-module.exports = { typeDefinition, mutate };
+module.exports = { typeDefinition, mutate, mutationDescription };

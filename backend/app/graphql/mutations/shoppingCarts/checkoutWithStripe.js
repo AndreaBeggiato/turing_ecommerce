@@ -8,6 +8,28 @@ const config = require('config');
 const mailFrom = config.get('mail.from');
 const mailViewPath = config.get('mail.viewPath');
 
+
+const mutationDescription = `
+"""
+  Checkout a cart with Stripe. After completion, create an order
+  and send an email with the details to the customer email address.
+
+  Authenticated user must be related with a customer with complete address
+
+  **Authentication:** NORMAL, ADMIN
+
+  **Possible errors:**
+    - Authentication
+      - MISSING_AUTHORIZATION: User is not logged or is anonymous
+    - User input
+      - TAX_NOT_FOUND: Cannot find the tax with the provided _taxId_
+      - EMPTY_CART: The cart to checkout is empty
+      - EMPTY_CUSTOMER: The user is not related with any customer
+      - CUSTOMER_NEED_A_COMPLETE_ADDRESS: The customer don't have a complete address
+      - PAYMENT_ERROR: Error with Stripe payment. Stripe details is included in the error.
+"""
+`;
+
 const errors = {
   TAX_NOT_FOUND: 'TAX_NOT_FOUND',
   EMPTY_CART: 'EMPTY_CART',
@@ -20,6 +42,9 @@ const typeDefinition = `
   input ShoppingCartCheckoutWithStripeInput {
     cartCode: String!
     taxId: ID!
+    """
+      Client side Stripe token
+    """
     token: String!
     comments: String
   }
@@ -96,7 +121,7 @@ const validate = async (input, context) => {
 
   try {
     await stripeClient.charges.create({
-      amount: totalAmount * 100,
+      amount: parseInt(Math.round(totalAmount * 100), 10),
       currency: 'usd',
       source: token,
     });
@@ -195,4 +220,4 @@ const mutate = async (source, { input }, context) => {
   throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
 };
 
-module.exports = { typeDefinition, mutate };
+module.exports = { typeDefinition, mutate, mutationDescription };

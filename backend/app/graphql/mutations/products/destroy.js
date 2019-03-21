@@ -1,6 +1,22 @@
 const { fromGlobalId } = require('graphql-relay');
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
 
+const mutationDescription = `
+"""
+  Destroy an existing product
+
+  **Authentication:** ADMIN required
+
+  **Possible errors:**
+    - Authentication
+      - MISSING_AUTHORIZATION: User is not logged in or not an ADMIN
+    - User input
+      - PRODUCT_NOT_FOUND: Cannot find the product with the provided _id_
+      - PRODUCT_HAS_CARTS: This product is related with some cart.
+      - PRODUCT_HAS_ORDERS: This product is related with some order.
+"""
+`;
+
 const errors = {
   PRODUCT_NOT_FOUND: 'PRODUCT_NOT_FOUND',
   PRODUCT_HAS_CARTS: 'PRODUCT_HAS_CARTS',
@@ -77,4 +93,4 @@ const mutate = async (source, { input }, context) => {
   throw new UserInputError(errors.PRODUCT_NOT_FOUND);
 };
 
-module.exports = { typeDefinition, mutate };
+module.exports = { typeDefinition, mutate, mutationDescription };

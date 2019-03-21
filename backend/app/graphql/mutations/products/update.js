@@ -4,6 +4,22 @@ const { AuthenticationError, UserInputError } = require('apollo-server-express')
 
 const { Op } = Sequelize;
 
+const mutationDescription = `
+"""
+  Update an existing product
+
+  **Authentication:** ADMIN required
+
+  **Possible errors:**
+    - Authentication
+      - MISSING_AUTHORIZATION: User is not logged in or not an ADMIN
+    - User input
+      - PRODUCT_NOT_FOUND: Cannot find the product with the provided _id_
+      - CATEGORY_NOT_FOUND: Cannot find at least one category in the provided _categoryIds_
+      - ATTRIBUTE_VALUE_NOT_FOUND: Cannot find at least one attribute value in the provided _attributeValueIds_
+"""
+`;
+
 const errors = {
   PRODUCT_NOT_FOUND: 'PRODUCT_NOT_FOUND',
   CATEGORY_NOT_FOUND: 'CATEGORY_NOT_FOUND',
@@ -117,7 +133,14 @@ const mutate = async (source, { input }, context) => {
       product.secondaryImage = secondaryImage ? secondaryImage.fileName : null;
       product.thumbnail = thumbnail ? thumbnail.fileName : null;
 
-      await product.save();
+      try {
+        await product.save();
+      }
+      catch (err) {
+        if (err.message !== 'Query was empty') { // Sequelize launch and complain about empty query if you change nothing. bah
+          throw err;
+        }
+      }
 
       await product.setCategories(categories);
       await product.setAttributeValues(attributeValues);
@@ -134,4 +157,4 @@ const mutate = async (source, { input }, context) => {
   throw new UserInputError(errors.PRODUCT_NOT_FOUND);
 };
 
-module.exports = { typeDefinition, mutate };
+module.exports = { typeDefinition, mutate, mutationDescription };

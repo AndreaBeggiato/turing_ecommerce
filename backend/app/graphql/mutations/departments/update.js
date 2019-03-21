@@ -1,6 +1,20 @@
 const { fromGlobalId } = require('graphql-relay');
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
 
+const mutationDescription = `
+"""
+  Update an existing department
+
+  **Authentication:** ADMIN required
+
+  **Possible errors:**
+    - Authentication
+      - MISSING_AUTHORIZATION: User is not logged in or not an ADMIN
+    - User input
+      - DEPARTMENT_NOT_FOUND: Cannot find the department with the provided id
+"""
+`;
+
 const errors = {
   DEPARTMENT_NOT_FOUND: 'DEPARTMENT_NOT_FOUND',
 };
@@ -40,7 +54,14 @@ const mutate = async (source, { input }, context) => {
       department.name = name;
       department.description = description;
 
-      await department.save();
+      try {
+        await department.save();
+      }
+      catch (err) {
+        if (err.message !== 'Query was empty') { // Sequelize launch and complain about empty query if you change nothing. bah
+          throw err;
+        }
+      }
 
       return {
         department,
@@ -54,4 +75,4 @@ const mutate = async (source, { input }, context) => {
   throw new UserInputError(errors.DEPARTMENT_NOT_FOUND);
 };
 
-module.exports = { typeDefinition, mutate };
+module.exports = { typeDefinition, mutate, mutationDescription };

@@ -4,6 +4,21 @@ const { AuthenticationError, UserInputError } = require('apollo-server-express')
 
 const { Op } = Sequelize;
 
+const mutationDescription = `
+"""
+  Create a new product
+
+  **Authentication:** ADMIN required
+
+  **Possible errors:**
+    - Authentication
+      - MISSING_AUTHORIZATION: User is not logged in or not an ADMIN
+    - User input
+      - CATEGORY_NOT_FOUND: Cannot find at least one category in the provided _categoryIds_
+      - ATTRIBUTE_VALUE_NOT_FOUND: Cannot find at least one attribute value in the provided _attributeValueIds_
+"""
+`;
+
 const errors = {
   CATEGORY_NOT_FOUND: 'CATEGORY_NOT_FOUND',
   ATTRIBUTE_VALUE_NOT_FOUND: 'ATTRIBUTE_VALUE_NOT_FOUND',
@@ -125,4 +140,4 @@ const mutate = async (source, { input }, context) => {
   throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
 };
 
-module.exports = { typeDefinition, mutate };
+module.exports = { typeDefinition, mutate, mutationDescription };

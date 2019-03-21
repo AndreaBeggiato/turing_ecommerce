@@ -17,11 +17,12 @@ const typeDefinition = `
     postalCode: String
     region: String
     shippingRegion: ShippingRegion!,
+    hasCompleteAddress: Boolean!
   }
 `;
 
 const resolver = {
-  ShippingRegion: {
+  Customer: {
     id: source => toGlobalId('Customer', source.id),
     address1: source => source.address1,
     address2: source => source.address2,
@@ -44,6 +45,7 @@ const resolver = {
       }
       throw new AuthenticationError(errorCodes.authentication.MISSING_AUTHORIZATION);
     },
+    hasCompleteAddress: source => source.hasCompleteAddress(),
   },
 };
 

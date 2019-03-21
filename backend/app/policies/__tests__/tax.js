@@ -1,8 +1,8 @@
 const { factory } = require('factory-girl'); // eslint-disable-line
 
-const policy = require('../shippingRegion');
+const policy = require('../tax');
 
-describe('Shipping region policy', () => {
+describe('Tax policy', () => {
   describe('#list', () => {
     test('Should return truthy', async () => {
       const result = await policy.methods.list();

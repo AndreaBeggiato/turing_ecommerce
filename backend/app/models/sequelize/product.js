@@ -44,7 +44,7 @@ const init = (sequelize) => {
       price: {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
-        field: 'discounted_price',
+        field: 'price',
       },
       thumbnail: {
         type: Sequelize.STRING,
